@@ -1,0 +1,9 @@
+\babel@toc {brazilian}{}\relax 
+\contentsline {section}{\numberline {1}Resumo}{2}{section.1}%
+\contentsline {section}{\numberline {2}Introdução}{2}{section.2}%
+\contentsline {section}{\numberline {3}Programação Dinâmica}{2}{section.3}%
+\contentsline {section}{\numberline {4}Backtracking}{2}{section.4}%
+\contentsline {section}{\numberline {5}Branch-and-Bound}{2}{section.5}%
+\contentsline {section}{\numberline {6}Avaliação Experimental}{2}{section.6}%
+\contentsline {section}{\numberline {7}Conclusão}{2}{section.7}%
+\contentsline {section}{\numberline {8}Referências Bibliográficas}{2}{section.8}%

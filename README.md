@@ -1,6 +1,6 @@
 # Trabalho Prático: Problema da Mochila 0-1 (Duas Restrições)
 
-Repositório destinado ao desenvolvimento e avaliação do trabalho prático da disciplina de **Projeto e Análise de Algoritmos (UFOP)**.
+Repositório destinado ao desenvolvimento e avaliação do trabalho prático da disciplina de **BCC 241 - Projeto e Análise de Algoritmos (UFOP)**.
 
 ## 📖 Sobre o Projeto
 
