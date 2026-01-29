@@ -9,8 +9,10 @@ def gerar_instancia(n, W, V, nome_arquivo):
         
         for _ in range(n):
             # Itens com peso e volume proporcionais à mochila
-            peso = random.randint(1, max(2, W // 4))
-            volume = random.randint(1, max(2, V // 4))
+            # peso = random.randint(1, max(2, W // 4))
+            peso = random.randint(1, 10)
+            # volume = random.randint(1, max(2, V // 4))
+            volume = random.randint(1, 10)
             valor = random.randint(10, 100)
             f.write(f"{peso}\t{volume}\t{valor}\n")
 
