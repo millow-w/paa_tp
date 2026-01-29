@@ -49,20 +49,19 @@ def resolver_branch_and_bound(W, V, itens):
 
 def resolver_dinamico(W, V, itens):
     """
-    Resolve o problema da mochila usando programação dinâmica.
-    Retorna: (melhor_valor, melhor_solucao, tempo_execucao)
+    Resolve o problema com programação dinâmica
     """
-    # TODO: Implementar quando o módulo dinâmico estiver pronto
     n = len(itens)
-    pesos = [item[0] for item in itens]
-    volumes = [item[1] for item in itens]
-    valores = [item[2] for item in itens]
+    
+    pesos = [0] + [item[0] for item in itens]
+    volumes = [0] + [item[1] for item in itens]
+    valores = [0] + [item[2] for item in itens]
     
     inicio = time.time()
-    # melhor_valor = din.resolver(W, V, pesos, volumes, valores)
+    melhor_valor, melhor_solucao = din.dinamico(W, V, n, pesos, volumes, valores)
     tempo = time.time() - inicio
     
-    return 0, [], tempo  # Placeholder
+    return melhor_valor, melhor_solucao, tempo
 
 def testar_instancia(caminho_arquivo, resolver_func, nome_algoritmo):
     """Testa uma única instância com o algoritmo especificado."""
