@@ -88,7 +88,10 @@ def rodar_benchmark(pastas_escolhidas):
 
 if __name__ == "__main__":
     pastas_escolhidas = [
-        "W20_V30"
+        "W30_V40",
+        "W50_V100",
+        "W80_V80",
+        "W70_V100"
     ]
 
     rodar_benchmark(pastas_escolhidas)
