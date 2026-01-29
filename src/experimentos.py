@@ -8,9 +8,10 @@ import algoritmos.dinamico as din
 def resolver_backtracking(W, V, itens):
     """
     Resolve o problema da mochila usando backtracking.
-    Retorna: (melhor_valor, tempo_execucao)
+    Retorna: (melhor_valor, melhor_solucao, tempo_execucao)
     """
     bt.melhor_valor = 0
+    bt.melhor_solucao = []
         
     n = len(itens)
     vetor = [False] * n
@@ -23,14 +24,15 @@ def resolver_backtracking(W, V, itens):
     bt.backtrack(vetor, 0, n, W, V, pesos, volumes, valores, 0, 0)
     tempo = time.time() - inicio
     
-    return bt.melhor_valor, tempo
+    return bt.melhor_valor, bt.melhor_solucao, tempo
 
 def resolver_branch_and_bound(W, V, itens):
     """
     Resolve o problema da mochila usando branch and bound.
-    Retorna: (melhor_valor, tempo_execucao)
+    Retorna: (melhor_valor, melhor_solucao, tempo_execucao)
     """
     bnb.melhor_valor = 0
+    bnb.melhor_solucao = []
         
     n = len(itens)
     vetor = [False] * n
@@ -43,12 +45,12 @@ def resolver_branch_and_bound(W, V, itens):
     bnb.backtrack(vetor, 0, n, W, V, pesos, volumes, valores, 0, 0, 0)
     tempo = time.time() - inicio
     
-    return bnb.melhor_valor, tempo
+    return bnb.melhor_valor, bnb.melhor_solucao, tempo
 
 def resolver_dinamico(W, V, itens):
     """
     Resolve o problema da mochila usando programação dinâmica.
-    Retorna: (melhor_valor, tempo_execucao)
+    Retorna: (melhor_valor, melhor_solucao, tempo_execucao)
     """
     # TODO: Implementar quando o módulo dinâmico estiver pronto
     n = len(itens)
@@ -60,7 +62,7 @@ def resolver_dinamico(W, V, itens):
     # melhor_valor = din.resolver(W, V, pesos, volumes, valores)
     tempo = time.time() - inicio
     
-    return 0, tempo  # Placeholder
+    return 0, [], tempo  # Placeholder
 
 def testar_instancia(caminho_arquivo, resolver_func, nome_algoritmo):
     """Testa uma única instância com o algoritmo especificado."""
@@ -71,12 +73,21 @@ def testar_instancia(caminho_arquivo, resolver_func, nome_algoritmo):
     print(f"Capacidade da mochila: W={W}, V={V}")
     print(f"Número de itens: {len(itens)}")
     
-    valor, tempo = resolver_func(W, V, itens)
+    valor, solucao, tempo = resolver_func(W, V, itens)
+    
+    # Calcular peso e volume totais da solução
+    peso_total = sum(itens[i][0] for i in range(len(solucao)) if solucao[i])
+    volume_total = sum(itens[i][1] for i in range(len(solucao)) if solucao[i])
+    itens_selecionados = [i for i in range(len(solucao)) if solucao[i]]
     
     print(f"Melhor valor encontrado: {valor}")
+    print(f"Peso total: {peso_total}/{W}")
+    print(f"Volume total: {volume_total}/{V}")
+    print(f"Itens selecionados: {itens_selecionados}")
+    print(f"Quantidade de itens: {len(itens_selecionados)}")
     print(f"Tempo de execução: {tempo:.7f}s")
     
-    return valor, tempo
+    return valor, solucao, tempo
 
 def main():
     # Dicionário de algoritmos disponíveis
@@ -107,16 +118,16 @@ def main():
     
     # Instâncias de teste
     instancias = [
-        "../instancias/W50_V100/instancia_n10.txt",
-        "../instancias/W50_V100/instancia_n20.txt",
-        "../instancias/W50_V100/instancia_n30.txt",
+        "../instancias/W200_V200/instancia_n30.txt",
+        # "../instancias/W100_V50/instancia_n100.txt",
+        # "../instancias/W50_V100/instancia_n30.txt",  # Descomente com cuidado
     ]
     
     resultados = []
     
     for instancia in instancias:
         try:
-            valor, tempo = testar_instancia(instancia, resolver_func, nome_algoritmo)
+            valor, solucao, tempo = testar_instancia(instancia, resolver_func, nome_algoritmo)
             resultados.append((instancia, valor, tempo))
         except FileNotFoundError:
             print(f"Arquivo não encontrado: {instancia}")

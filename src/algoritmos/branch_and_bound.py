@@ -1,4 +1,5 @@
 melhor_valor = 0
+melhor_solucao = []
 
 def calcular_limitante_superior(k, n, capacidade_peso, capacidade_volume, pesos, volumes, valores, peso_atual, volume_atual, valor_atual):
     """
@@ -42,11 +43,13 @@ def calcular_limitante_superior(k, n, capacidade_peso, capacidade_volume, pesos,
     return limitante
 
 def backtrack(vetor, k, n, capacidade_peso, capacidade_volume, pesos, volumes, valores, peso_atual, volume_atual, valor_atual):
-    global melhor_valor
+    global melhor_valor, melhor_solucao
     
     # Caso base: chegou ao fim
     if k == n:
-        melhor_valor = max(melhor_valor, valor_atual)
+        if valor_atual > melhor_valor:
+            melhor_valor = valor_atual
+            melhor_solucao = vetor.copy()
         return
     
     # Calcular limitante superior para o nó atual
