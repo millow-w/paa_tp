@@ -1,10 +1,14 @@
 melhor_valor = 0
+melhor_solucao = []
 
 def backtrack(vetor, k, n, capacidade_peso, capacidade_volume, pesos, volumes, valores, peso_atual, volume_atual):
-    global melhor_valor  
+    global melhor_valor, melhor_solucao
+    
     if k == n:
         valor = process_solution(vetor, n, valores)
-        melhor_valor = max(melhor_valor, valor)
+        if valor > melhor_valor:
+            melhor_valor = valor
+            melhor_solucao = vetor.copy()
     else:
         c = construct_candidates(k, peso_atual, volume_atual, pesos, volumes, capacidade_peso, capacidade_volume)
         for possibilidade in c:
@@ -15,11 +19,12 @@ def backtrack(vetor, k, n, capacidade_peso, capacidade_volume, pesos, volumes, v
 
 def construct_candidates(k, peso_atual, volume_atual, pesos, volumes, capacidade_peso, capacidade_volume):
     
-    c = [False]
+    c = []
     
     if peso_atual + pesos[k] <= capacidade_peso and volume_atual + volumes[k] <= capacidade_volume:
         c.append(True)
         
+    c.append(False)
     return c
 
 def process_solution(vetor, n, valores):
