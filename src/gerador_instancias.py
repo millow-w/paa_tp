@@ -3,41 +3,43 @@ import os
 import sys
 
 def gerar_instancia(n, W, V, nome_arquivo):
-    """Gera uma instância seguindo o formato do trabalho[cite: 9, 11]."""
+    """Gera uma única instância seguindo o formato do trabalho."""
     with open(nome_arquivo, 'w') as f:
-        # [cite_start]Linha 1: W e V separados por tabulação [cite: 9]
         f.write(f"{W}\t{V}\n")
         
         for _ in range(n):
-            # Pesos e volumes variando entre 1 e a capacidade (ou uma fração dela)
-            peso = random.randint(1, max(2, W // 2))
-            volume = random.randint(1, max(2, V // 2))
+            # Itens com peso e volume proporcionais à mochila
+            peso = random.randint(1, max(2, W // 4))
+            volume = random.randint(1, max(2, V // 4))
             valor = random.randint(10, 100)
-            # [cite_start]Itens: peso, volume e valor [cite: 9]
             f.write(f"{peso}\t{volume}\t{valor}\n")
 
 def main():
-    # Verifica se os argumentos foram passados: script.py n W V
-    if len(sys.argv) < 4:
-        print("Uso: python3 gerador_instancias.py <n_itens> <peso_max> <volume_max>")
+    if len(sys.argv) < 3:
+        print("Uso: python3 gerador_instancias.py <peso_max> <volume_max>")
         sys.exit(1)
 
-    n = int(sys.argv[1])
-    W = int(sys.argv[2])
-    V = int(sys.argv[3])
-    num_repeticoes = 10
+    W = int(sys.argv[1])
+    V = int(sys.argv[2])
+    
+    # Queremos uma instância para cada um destes tamanhos
+    lista_n = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 
     base_path = os.path.join("..", "instancias")
-    nome_pasta = f"n{n}_W{W}_V{V}"
+    # Criamos uma pasta única para esse conjunto de testes
+    nome_pasta = f"W{W}_V{V}"
     pasta_caminho = os.path.join(base_path, nome_pasta)
 
     if not os.path.exists(pasta_caminho):
         os.makedirs(pasta_caminho)
 
-    print(f"Gerando {num_repeticoes} instâncias em: {nome_pasta}")
-    for i in range(1, num_repeticoes + 1):
-        nome_arq = os.path.join(pasta_caminho, f"instancia_{i}.txt")
+    print(f"Gerando instâncias variando N de 10 a 100 em: {nome_pasta}")
+    
+    for n in lista_n:
+        nome_arq = os.path.join(pasta_caminho, f"instancia_n{n}.txt")
         gerar_instancia(n, W, V, nome_arq)
+
+    print("\nConcluído! Você tem 10 arquivos, cada um com um número diferente de itens.")
 
 if __name__ == "__main__":
     main()
