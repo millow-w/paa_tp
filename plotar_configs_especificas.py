@@ -92,7 +92,7 @@ def gerar_graficos_especificos():
     # Configurações desejadas
     configs = [
         ('W20_V30', '20', '30'),
-        ('W100_V150', '100', '150')
+        ('W120_V130', '120', '130')
     ]
     
     print("=" * 80)

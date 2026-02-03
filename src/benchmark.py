@@ -14,7 +14,7 @@ from experimentos import (
 diretorio_projeto = Path(__file__).resolve().parent.parent
 diretorio_base = os.path.join(diretorio_projeto, "instancias")
 
-def rodar_benchmark(pastas_escolhidas, timeout_seconds=120):
+def rodar_benchmark(pastas_escolhidas, timeout_seconds=120, max_n_backtracking=40):
 
     print(diretorio_base)
 
@@ -31,13 +31,19 @@ def rodar_benchmark(pastas_escolhidas, timeout_seconds=120):
     
     # Contar total de testes para progresso
     total_instancias = 0
+    total_testes = 0
     for pasta in pastas_escolhidas:
         caminho_pasta = os.path.join(diretorio_base, pasta)
         if os.path.isdir(caminho_pasta):
             arquivos = [a for a in os.listdir(caminho_pasta) if a.endswith('.txt')][:10]
-            total_instancias += len(arquivos)
-    
-    total_testes = total_instancias * len(algoritmos)
+            for arquivo in arquivos:
+                total_instancias += 1
+                n_itens = int(arquivo.split('_n')[1].replace('.txt', ''))
+                # Conta algoritmos aplicáveis para esta instância
+                for nome_alg in algoritmos.keys():
+                    if nome_alg == 'Backtracking' and n_itens > max_n_backtracking:
+                        continue  # Pula backtracking se n for muito grande
+                    total_testes += 1
     teste_atual = 0
     inicio_benchmark = time.time()
     
@@ -46,6 +52,7 @@ def rodar_benchmark(pastas_escolhidas, timeout_seconds=120):
     print(f"{'='*80}")
     print(f"Configuração:")
     print(f"  - Timeout por execução: {timeout_seconds}s")
+    print(f"  - Max n para Backtracking: {max_n_backtracking}")
     print(f"  - Iterações por teste: 10 (ou até timeout)")
     print(f"  - Pastas: {', '.join(pastas_escolhidas)}")
     print(f"  - Total de instâncias: {total_instancias}")
@@ -89,6 +96,12 @@ def rodar_benchmark(pastas_escolhidas, timeout_seconds=120):
                 W, V, itens = ler_instancia(caminho_instancia)
 
                 for nome_alg, func_resolver in algoritmos.items():
+                    # Pula backtracking se n for maior que o limite
+                    if nome_alg == 'Backtracking' and int(n_itens) > max_n_backtracking:
+                        print(f"\n[SKIP] {pasta}/{arquivo} - {nome_alg}")
+                        print(f"  └─ n={n_itens} > max_n_backtracking ({max_n_backtracking}), pulando...")
+                        continue
+                    
                     teste_atual += 1
                     tempo_decorrido = time.time() - inicio_benchmark
                     tempo_medio_por_teste = tempo_decorrido / teste_atual if teste_atual > 0 else 0
@@ -101,7 +114,7 @@ def rodar_benchmark(pastas_escolhidas, timeout_seconds=120):
                     tempos = []
                     valores = []
 
-                    for iteracao in range(1):
+                    for iteracao in range(10):
                         print(f"     Iteração {iteracao+1}/10...", end=" ", flush=True)
                         valor, solucao, tempo, sucesso = func_resolver(W, V, itens, timeout_seconds)
                         
@@ -150,6 +163,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Rodar benchmark dos algoritmos de mochila')
     parser.add_argument('--timeout', type=int, default=120, 
                         help='Timeout em segundos para cada execução (padrão: 120)')
+    parser.add_argument('--max-n-backtracking', type=int, default=40,
+                        help='Valor máximo de n para executar Backtracking (padrão: 40)')
     parser.add_argument('--pastas', nargs='+', 
                         help='Pastas específicas para testar (ex: W30_V40 W50_V100)')
     
@@ -161,14 +176,11 @@ if __name__ == "__main__":
     else:
         pastas_escolhidas = [
             "W20_V30",
-            "W20_V40",
-            "W30_V40",
             "W50_V70",
-            "W80_V80",
             "W80_V100",
-            "W80_V120",
-            "W100_V150",
+            "W100_V120",
+            "W120_V130",
         ]
     
-    print(f"Configuração: timeout={args.timeout}s, pastas={pastas_escolhidas}")
-    rodar_benchmark(pastas_escolhidas, timeout_seconds=args.timeout)
+    print(f"Configuração: timeout={args.timeout}s, max_n_backtracking={args.max_n_backtracking}, pastas={pastas_escolhidas}")
+    rodar_benchmark(pastas_escolhidas, timeout_seconds=args.timeout, max_n_backtracking=args.max_n_backtracking)

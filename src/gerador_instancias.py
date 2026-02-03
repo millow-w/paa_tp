@@ -29,7 +29,7 @@ def main():
     V = int(sys.argv[2])
     
     # Queremos uma instância para cada um destes tamanhos
-    lista_n = [10, 12, 14, 16, 18, 20, 22, 24, 26, 30]
+    lista_n = [10, 20, 30, 40, 50, 60, 70, 80]
 
     # Criamos uma pasta única para esse conjunto de testes
     nome_pasta = f"W{W}_V{V}"

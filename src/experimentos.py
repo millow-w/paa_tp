@@ -44,17 +44,21 @@ def resolver_branch_and_bound(W, V, itens, timeout_seconds=None):
     Retorna: (melhor_valor, melhor_solucao, tempo_execucao, sucesso)
     """
     def _executar():
-        solver = bnb.BranchAndBound()
+        bnb.melhor_valor = 0
+        bnb.melhor_solucao = []
+        
+        n = len(itens)
+        vetor = [False] * n
         
         pesos = [item[0] for item in itens]
         volumes = [item[1] for item in itens]
         valores = [item[2] for item in itens]
         
         inicio = time.time()
-        melhor_valor, melhor_solucao = solver.resolver(W, V, pesos, volumes, valores)
+        bnb.backtrack(vetor, 0, n, W, V, pesos, volumes, valores, 0, 0, 0)
         tempo = time.time() - inicio
         
-        return melhor_valor, melhor_solucao, tempo
+        return bnb.melhor_valor, bnb.melhor_solucao, tempo
     
     if timeout_seconds:
         resultado, sucesso = executar_com_timeout(_executar, timeout_seconds)
