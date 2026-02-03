@@ -1,4 +1,47 @@
 import os
+import signal
+
+class TimeoutError(Exception):
+    """Exceção customizada para timeout"""
+    pass
+
+def _timeout_handler(signum, frame):
+    """Handler para o sinal de timeout"""
+    raise TimeoutError("Execução excedeu o tempo limite")
+
+def executar_com_timeout(func, timeout_seconds, *args, **kwargs):
+    """
+    Executa uma função com timeout usando signal.alarm (Linux/Unix).
+    
+    Args:
+        func: Função a ser executada
+        timeout_seconds: Tempo limite em segundos
+        *args, **kwargs: Argumentos para a função
+    
+    Returns:
+        (resultado, sucesso): tupla onde sucesso é True se completou, False se timeout/erro
+    """
+    # Configurar handler de timeout
+    old_handler = signal.signal(signal.SIGALRM, _timeout_handler)
+    signal.alarm(timeout_seconds)
+    
+    try:
+        resultado = func(*args, **kwargs)
+        signal.alarm(0)  # Cancelar o alarme
+        signal.signal(signal.SIGALRM, old_handler)  # Restaurar handler anterior
+        return (resultado, True)
+    except TimeoutError:
+        signal.alarm(0)  # Cancelar o alarme
+        signal.signal(signal.SIGALRM, old_handler)
+        return (None, False)
+    except MemoryError:
+        signal.alarm(0)  # Cancelar o alarme
+        signal.signal(signal.SIGALRM, old_handler)
+        return (None, False)
+    except Exception as e:
+        signal.alarm(0)  # Cancelar o alarme
+        signal.signal(signal.SIGALRM, old_handler)
+        raise e  # Re-raise outras exceções
 
 def ler_instancia(caminho_arquivo):
     """

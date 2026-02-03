@@ -306,6 +306,105 @@ def plotar_complexidade_empirica(df, salvar=True):
         print("📊 Gráfico salvo: analise_complexidade.png")
     plt.close()
 
+def plotar_comparacao_tres_algoritmos(pasta_resultados='resultados', pasta_saida='graficos'):
+    """
+    Gera gráficos de comparação acadêmica para apresentação de propriedades assintóticas.
+    Cria um arquivo PNG separado para cada configuração (W,V) mostrando tempo vs n
+    para todos os três algoritmos em escala logarítmica com regiões de desvio padrão.
+    """
+    print("\n" + "="*80)
+    print("GERANDO GRÁFICOS DE COMPARAÇÃO ACADÊMICA")
+    print("="*80)
+    
+    # Carregar dados
+    df = carregar_todos_resultados(pasta_resultados)
+    if df is None:
+        return
+    
+    # Criar pasta de saída
+    os.makedirs(pasta_saida, exist_ok=True)
+    
+    # Configurações de estilo para publicação acadêmica
+    plt.rcParams['font.family'] = 'serif'
+    plt.rcParams['font.size'] = 11
+    plt.rcParams['axes.labelsize'] = 12
+    plt.rcParams['axes.titlesize'] = 13
+    plt.rcParams['legend.fontsize'] = 10
+    plt.rcParams['xtick.labelsize'] = 10
+    plt.rcParams['ytick.labelsize'] = 10
+    
+    # Cores e estilos por algoritmo
+    estilos = {
+        'Dinamico': {'color': '#2E7D32', 'marker': 'o', 'label': 'Dynamic Programming O(nWV)', 'linestyle': '-'},
+        'Backtracking': {'color': '#D32F2F', 'marker': 's', 'label': 'Backtracking O(2^n)', 'linestyle': '--'},
+        'Branch_and_Bound': {'color': '#1976D2', 'marker': '^', 'label': 'Branch & Bound O(2^n)', 'linestyle': '-.'}
+    }
+    
+    # Agrupar por capacidade
+    capacidades = df.groupby(['Capacidade_W', 'Capacidade_V'])
+    
+    for (w_cap, v_cap), dados_cap in capacidades:
+        fig, ax = plt.subplots(figsize=(10, 7))
+        
+        # Plotar cada algoritmo
+        for algoritmo in sorted(dados_cap['Algoritmo'].unique()):
+            if algoritmo not in estilos:
+                continue
+                
+            dados_alg = dados_cap[dados_cap['Algoritmo'] == algoritmo].sort_values('N_Itens')
+            
+            n = dados_alg['N_Itens'].values
+            tempo_medio = dados_alg['Tempo_Medio'].values
+            tempo_std = dados_alg['Tempo_Std'].values
+            
+            estilo = estilos[algoritmo]
+            
+            # Linha principal com marcadores
+            ax.plot(n, tempo_medio, 
+                   color=estilo['color'], 
+                   marker=estilo['marker'],
+                   markersize=7,
+                   linestyle=estilo['linestyle'],
+                   linewidth=2.5,
+                   label=estilo['label'],
+                   alpha=0.9)
+            
+            # Região de desvio padrão (quando disponível)
+            if len(tempo_std) > 0 and tempo_std.max() > 0:
+                ax.fill_between(n, 
+                               np.maximum(tempo_medio - tempo_std, 1e-8),  # Evitar valores negativos
+                               tempo_medio + tempo_std,
+                               color=estilo['color'],
+                               alpha=0.15)
+        
+        # Configuração dos eixos
+        ax.set_xlabel('Número de itens (n)', fontweight='bold')
+        ax.set_ylabel('Tempo de Execução (segundos)', fontweight='bold')
+
+        
+        # Escala logarítmica no eixo y
+        ax.set_yscale('log')
+        
+        # Grid
+        ax.grid(True, which='major', linestyle='-', alpha=0.3, linewidth=0.8)
+        ax.grid(True, which='minor', linestyle=':', alpha=0.2, linewidth=0.5)
+        
+        # Legenda
+        ax.legend(loc='best', frameon=True, shadow=True, fancybox=True)
+        
+        # Ajustar layout
+        plt.tight_layout()
+        
+        # Salvar
+        filename = f'comparacao_academica_W{w_cap}_V{v_cap}.png'
+        filepath = os.path.join(pasta_saida, filename)
+        plt.savefig(filepath, dpi=300, bbox_inches='tight', facecolor='white')
+        print(f"  ✓ Salvo: {filename}")
+        plt.close()
+    
+    print(f"\n✅ Gráficos de comparação salvos em: {os.path.abspath(pasta_saida)}/")
+    print("="*80)
+
 def main():
     """Função principal."""
     print("="*80)
@@ -351,6 +450,10 @@ def main():
     for algoritmo in df['Algoritmo'].unique():
         print(f"\n📊 Gerando heatmap: {algoritmo}...")
         plotar_heatmap_tempo(df, algoritmo)
+    
+    print("\n📊 Gerando gráficos de comparação acadêmica...")
+    os.chdir('..')  # Voltar para pasta src
+    plotar_comparacao_tres_algoritmos()
     
     print("\n" + "="*80)
     print("✅ ANÁLISE CONCLUÍDA!")

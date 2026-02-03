@@ -1,6 +1,10 @@
 import random
 import os
 import sys
+from pathlib import Path
+
+diretorio_projeto = Path(__file__).resolve().parent.parent
+base_path = os.path.join(diretorio_projeto, "instancias")
 
 def gerar_instancia(n, W, V, nome_arquivo):
     """Gera uma única instância seguindo o formato do trabalho."""
@@ -25,12 +29,15 @@ def main():
     V = int(sys.argv[2])
     
     # Queremos uma instância para cada um destes tamanhos
-    lista_n = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+    lista_n = [10, 12, 14, 16, 18, 20, 22, 24, 26, 30]
 
-    base_path = os.path.join("..", "instancias")
     # Criamos uma pasta única para esse conjunto de testes
     nome_pasta = f"W{W}_V{V}"
     pasta_caminho = os.path.join(base_path, nome_pasta)
+
+    print(nome_pasta)
+
+    print(pasta_caminho)
 
     if not os.path.exists(pasta_caminho):
         os.makedirs(pasta_caminho)

@@ -1,67 +1,100 @@
 import time
 import sys
-from utils import ler_instancia
+from utils import ler_instancia, executar_com_timeout
 import algoritmos.backtracking as bt
 import algoritmos.branch_and_bound as bnb
 import algoritmos.dinamico as din
 
-def resolver_backtracking(W, V, itens):
+def resolver_backtracking(W, V, itens, timeout_seconds=None):
     """
     Resolve o problema da mochila usando backtracking.
-    Retorna: (melhor_valor, melhor_solucao, tempo_execucao)
+    Retorna: (melhor_valor, melhor_solucao, tempo_execucao, sucesso)
     """
-    bt.melhor_valor = 0
-    bt.melhor_solucao = []
+    def _executar():
+        bt.melhor_valor = 0
+        bt.melhor_solucao = []
+            
+        n = len(itens)
+        vetor = [False] * n
         
-    n = len(itens)
-    vetor = [False] * n
+        pesos = [item[0] for item in itens]
+        volumes = [item[1] for item in itens]
+        valores = [item[2] for item in itens]
+        
+        inicio = time.time()
+        bt.backtrack(vetor, 0, n, W, V, pesos, volumes, valores, 0, 0)
+        tempo = time.time() - inicio
+        
+        return bt.melhor_valor, bt.melhor_solucao, tempo
     
-    pesos = [item[0] for item in itens]
-    volumes = [item[1] for item in itens]
-    valores = [item[2] for item in itens]
-    
-    inicio = time.time()
-    bt.backtrack(vetor, 0, n, W, V, pesos, volumes, valores, 0, 0)
-    tempo = time.time() - inicio
-    
-    return bt.melhor_valor, bt.melhor_solucao, tempo
+    if timeout_seconds:
+        resultado, sucesso = executar_com_timeout(_executar, timeout_seconds)
+        if sucesso:
+            valor, solucao, tempo = resultado
+            return valor, solucao, tempo, True
+        else:
+            return None, None, timeout_seconds, False
+    else:
+        valor, solucao, tempo = _executar()
+        return valor, solucao, tempo, True
 
-def resolver_branch_and_bound(W, V, itens):
+def resolver_branch_and_bound(W, V, itens, timeout_seconds=None):
     """
     Resolve o problema da mochila usando branch and bound.
-    Retorna: (melhor_valor, melhor_solucao, tempo_execucao)
+    Retorna: (melhor_valor, melhor_solucao, tempo_execucao, sucesso)
     """
-    bnb.melhor_valor = 0
-    bnb.melhor_solucao = []
+    def _executar():
+        solver = bnb.BranchAndBound()
         
-    n = len(itens)
-    vetor = [False] * n
+        pesos = [item[0] for item in itens]
+        volumes = [item[1] for item in itens]
+        valores = [item[2] for item in itens]
+        
+        inicio = time.time()
+        melhor_valor, melhor_solucao = solver.resolver(W, V, pesos, volumes, valores)
+        tempo = time.time() - inicio
+        
+        return melhor_valor, melhor_solucao, tempo
     
-    pesos = [item[0] for item in itens]
-    volumes = [item[1] for item in itens]
-    valores = [item[2] for item in itens]
-    
-    inicio = time.time()
-    bnb.backtrack(vetor, 0, n, W, V, pesos, volumes, valores, 0, 0, 0)
-    tempo = time.time() - inicio
-    
-    return bnb.melhor_valor, bnb.melhor_solucao, tempo
+    if timeout_seconds:
+        resultado, sucesso = executar_com_timeout(_executar, timeout_seconds)
+        if sucesso:
+            valor, solucao, tempo = resultado
+            return valor, solucao, tempo, True
+        else:
+            return None, None, timeout_seconds, False
+    else:
+        valor, solucao, tempo = _executar()
+        return valor, solucao, tempo, True
 
-def resolver_dinamico(W, V, itens):
+def resolver_dinamico(W, V, itens, timeout_seconds=None):
     """
     Resolve o problema com programação dinâmica
+    Retorna: (melhor_valor, melhor_solucao, tempo_execucao, sucesso)
     """
-    n = len(itens)
+    def _executar():
+        n = len(itens)
+        
+        pesos = [0] + [item[0] for item in itens]
+        volumes = [0] + [item[1] for item in itens]
+        valores = [0] + [item[2] for item in itens]
+        
+        inicio = time.time()
+        melhor_valor, melhor_solucao = din.dinamico(W, V, n, pesos, volumes, valores)
+        tempo = time.time() - inicio
+        
+        return melhor_valor, melhor_solucao, tempo
     
-    pesos = [0] + [item[0] for item in itens]
-    volumes = [0] + [item[1] for item in itens]
-    valores = [0] + [item[2] for item in itens]
-    
-    inicio = time.time()
-    melhor_valor, melhor_solucao = din.dinamico(W, V, n, pesos, volumes, valores)
-    tempo = time.time() - inicio
-    
-    return melhor_valor, melhor_solucao, tempo
+    if timeout_seconds:
+        resultado, sucesso = executar_com_timeout(_executar, timeout_seconds)
+        if sucesso:
+            valor, solucao, tempo = resultado
+            return valor, solucao, tempo, True
+        else:
+            return None, None, timeout_seconds, False
+    else:
+        valor, solucao, tempo = _executar()
+        return valor, solucao, tempo, True
 
 def testar_instancia(caminho_arquivo, resolver_func, nome_algoritmo):
     """Testa uma única instância com o algoritmo especificado."""
@@ -72,7 +105,11 @@ def testar_instancia(caminho_arquivo, resolver_func, nome_algoritmo):
     print(f"Capacidade da mochila: W={W}, V={V}")
     print(f"Número de itens: {len(itens)}")
     
-    valor, solucao, tempo = resolver_func(W, V, itens)
+    valor, solucao, tempo, sucesso = resolver_func(W, V, itens)
+    
+    if not sucesso:
+        print(f"TIMEOUT ou ERRO DE MEMÓRIA após {tempo}s")
+        return None, None, tempo
     
     # Calcular peso e volume totais da solução
     peso_total = sum(itens[i][0] for i in range(len(solucao)) if solucao[i])
