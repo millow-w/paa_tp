@@ -43,7 +43,6 @@ def calcular_limitante_superior(k, n, capacidade_peso, capacidade_volume, itens_
             volume_restante -= v
             limitante += val
         else:
-            # Pega a fração baseada no recurso que esgotar primeiro
             fracao_peso = peso_restante / p if p > 0 else 1
             fracao_volume = volume_restante / v if v > 0 else 1
             
@@ -56,7 +55,6 @@ def calcular_limitante_superior(k, n, capacidade_peso, capacidade_volume, itens_
 def backtrack(vetor, k, n, capacidade_peso, capacidade_volume, itens_ordenados, peso_atual, volume_atual, valor_atual):
     global melhor_valor, melhor_solucao
     
-    # Caso base
     if k == n:
         if valor_atual > melhor_valor:
             melhor_valor = valor_atual
@@ -65,15 +63,12 @@ def backtrack(vetor, k, n, capacidade_peso, capacidade_volume, itens_ordenados, 
     
     p, v, val, idx_original = itens_ordenados[k]
 
-    # --- RAMO 1: INCLUSÃO (Tentamos primeiro o mais promissor) ---
     if peso_atual + p <= capacidade_peso and volume_atual + v <= capacidade_volume:
         vetor[idx_original] = True
         backtrack(vetor, k + 1, n, capacidade_peso, capacidade_volume, itens_ordenados, 
                   peso_atual + p, volume_atual + v, valor_atual + val)
         vetor[idx_original] = False
 
-    # --- RAMO 2: EXCLUSÃO ---
-    # Calculamos o limitante para ver se vale a pena ignorar este item
     limitante_exclusao = calcular_limitante_superior(k + 1, n, capacidade_peso, capacidade_volume, 
                                                      itens_ordenados, peso_atual, volume_atual, valor_atual)
     
